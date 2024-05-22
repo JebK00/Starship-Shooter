@@ -140,7 +140,7 @@ def draw():
     global start_screen, tir_animation
     if start_screen:
         pyxel.cls(5)
-        pyxel.text(90, 60, "Starship Troopers", pyxel.frame_count % 16)
+        pyxel.text(90, 60, "Starship Shooter", pyxel.frame_count % 16)
         pyxel.text(20, 100, "Créateurs: Renan Laugier - Nils Doucet - Arthur Jensen", 7)
         pyxel.text(75, 120, "A Ryangames Production", 7)
         pyxel.text(80, 140, "Fleche pour deplacer", 7)
