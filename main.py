@@ -12,6 +12,9 @@ arthropode_liste = []
 projectile_liste = []
 ft_liste = []
 
+# Animation du tir
+tir_animation = 0
+
 # Charger les ressources
 pyxel.init(256, 256)
 pyxel.load("3.pyxres")
@@ -34,11 +37,13 @@ def collision_cercle(cx1, cy1, r1, cx2, cy2, r2):
     return ((cx1 - cx2)**2 + (cy1 - cy2)**2) <= (r1 + r2)**2
 
 def projectile_creation(x, y, direction):
+    global tir_animation
     if pyxel.btnp(pyxel.KEY_SPACE) and len(projectile_liste) < 10:
         if direction == 0:
-            projectile_liste.append([x + 14, y + 3, direction])
+            projectile_liste.append([x + 14, y + 3, direction, 0])
         else:
-            projectile_liste.append([x - 4, y + 3, direction])
+            projectile_liste.append([x - 4, y + 3, direction, 0])
+        tir_animation = 1
 
 def projectile_deplacement():
     for projectile in projectile_liste:
@@ -46,6 +51,7 @@ def projectile_deplacement():
             projectile[0] += 5
         else:
             projectile[0] -= 5
+        projectile[3] += 1
         if projectile[0] < -8 or projectile[0] > 264:
             projectile_liste.remove(projectile)
 
@@ -105,7 +111,7 @@ def arthropode_deplacement():
             arthropode_liste.remove(arthropode)
 
 def update():
-    global bonhomme_x, bonhomme_y, start_screen
+    global bonhomme_x, bonhomme_y, start_screen, tir_animation
     if start_screen:
         if pyxel.btnp(pyxel.KEY_RETURN):
             start_screen = False
@@ -125,8 +131,13 @@ def update():
     arthropode_suppression()
     arthropode_suppressionft()
 
+    if tir_animation > 0:
+        tir_animation += 1
+        if tir_animation > 15:
+            tir_animation = 0
+
 def draw():
-    global start_screen
+    global start_screen, tir_animation
     if start_screen:
         pyxel.cls(5)
         pyxel.text(90, 60, "Starship Troopers", pyxel.frame_count % 16)
@@ -151,19 +162,38 @@ def draw():
             pyxel.blt(x, y, 0, 176, 112, 16, 16)
         for arthropode in arthropode_liste:
             pyxel.blt(arthropode[0], arthropode[1], 0, 0, 120, -15, 15)
-        if direction == 0:
-            pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 8, 16, 16)
+
+        # Animation du tir
+        if tir_animation > 0 and tir_animation <= 5:
+            if direction == 0:
+                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 24, 16, 16)  # Tir à droite
+                pyxel.blt(bonhomme_x + 14, bonhomme_y + 3, 0, 32 + 16 * (tir_animation - 1), 40, 16, 16)
+            else:
+                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 24, -16, 16)  # Tir à gauche
+                pyxel.blt(bonhomme_x - 4, bonhomme_y + 3, 0, 32 + 16 * (tir_animation - 1), 40, -16, 16)
         else:
-            pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 8, -16, 16)
+            if direction == 0:
+                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 8, 16, 16)
+            else:
+                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 8, -16, 16)
+
         for projectile in projectile_liste:
-            pyxel.blt(projectile[0], projectile[1], 0, 48, 8, 8, 8)
+            if projectile[3] < 3:
+                pyxel.blt(projectile[0], projectile[1], 0, 32, 8, 8, 8)
+            elif projectile[3] < 6:
+                pyxel.blt(projectile[0], projectile[1], 0, 40, 8, 8, 8)
+            else:
+                pyxel.blt(projectile[0], projectile[1], 0, 48, 8, 8, 8)
+        
         for ft in ft_liste:
             pyxel.blt(ft[0], ft[1], 0, 128, 32, 16, 16)
+        
+        pyxel.text(10, 10, str(points_de_victoire), 6)
+        pyxel.text(224, 240, str(points_de_vie), 0)
     else:
         pyxel.cls(5)
-        pyxel.text(64, 110, 'Les Aliens on pris la planète !', 7)
+        pyxel.text(64, 110, 'Les Aliens ont pris la planète !', 7)
         pyxel.text(64, 120, 'La Democratie a perdu', 7)
-    pyxel.text(10, 10, str(points_de_victoire), 6)
-    pyxel.text(224, 240, str(points_de_vie), 0)
+        pyxel.text(64, 130, 'Appuyez sur R pour recommencer', 7)
 
 pyxel.run(update, draw)
