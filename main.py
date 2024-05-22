@@ -8,8 +8,8 @@ def __init__(self):
 
 def update(self):
 
-def draw(self):
-    pyxel.cls(1)
-    pyxel.rect(self.x, 0, 8, 8, 9)
+    def draw(self):
+        pyxel.cls(1)
+        pyxel.rect(self.x, 0, 8, 8, 9)
 
 pyxel.run(update, draw)
