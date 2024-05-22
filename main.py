@@ -45,9 +45,4 @@ class App:
 
             pyxel.text(40, 60, "Press R to Restart", 7)
 
- 
-
-if __name__ == "__main__":
-
-    DinoGame()
 App()
