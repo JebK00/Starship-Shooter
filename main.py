@@ -166,11 +166,29 @@ def draw():
         # Animation du tir
         if tir_animation > 0 and tir_animation <= 5:
             if direction == 0:
-                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 24, 16, 16)  # Tir à droite
-                pyxel.blt(bonhomme_x + 14, bonhomme_y + 3, 0, 32 + 16 * (tir_animation - 1), 40, 16, 16)
+                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 56  , 16, 16)  # Tir à droite
+                if tir_animation==1:
+                    pyxel.blt(bonhomme_x + 16, bonhomme_y + 3, 0, 32, 16, 8, 8)
+                if tir_animation==2:
+                    pyxel.blt(bonhomme_x + 16, bonhomme_y + 3, 0, 40, 16, 8, 8)
+                if tir_animation==3:
+                    pyxel.blt(bonhomme_x + 16, bonhomme_y + 3, 0, 48, 16, 8, 8)
+                if tir_animation==4:
+                    pyxel.blt(bonhomme_x + 16, bonhomme_y + 3, 0, 56, 16, 8, 8)
+                if tir_animation==5:
+                    pyxel.blt(bonhomme_x + 16, bonhomme_y + 3, 0, 64, 16, 8, 8)
             else:
-                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 24, -16, 16)  # Tir à gauche
-                pyxel.blt(bonhomme_x - 4, bonhomme_y + 3, 0, 32 + 16 * (tir_animation - 1), 40, -16, 16)
+                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 56, -16, 16)  # Tir à gauche
+                if tir_animation==1:
+                    pyxel.blt(bonhomme_x - 8, bonhomme_y + 3, 0, 32, 16, -8, 8)
+                if tir_animation==2:
+                    pyxel.blt(bonhomme_x - 8, bonhomme_y + 3, 0, 40, 16, -8, 8)
+                if tir_animation==3:
+                    pyxel.blt(bonhomme_x - 8, bonhomme_y + 3, 0, 48, 16, -8, 8)
+                if tir_animation==4:
+                    pyxel.blt(bonhomme_x - 8, bonhomme_y + 3, 0, 56, 16, -8, 8)
+                if tir_animation==5:
+                    pyxel.blt(bonhomme_x - 8, bonhomme_y + 3, 0, 64, 16, -8, 8)
         else:
             if direction == 0:
                 pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 8, 16, 16)
