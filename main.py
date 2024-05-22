@@ -34,7 +34,7 @@ caillou_positions = generate_positions()[:8]
 barril_positions = generate_positions()[8:]
 
 def collision_cercle(cx1, cy1, r1, cx2, cy2, r2):
-    return ((cx1 - cx2)**2 + (cy1 - cy2)**2) <= (r1 + r2)**2
+    return ((cx1 - cx2)*2 + (cy1 - cy2)*2) <= (r1 + r2)*2
 
 def projectile_creation(x, y, direction):
     global tir_animation
@@ -105,8 +105,20 @@ def arthropode_suppressionft():
 
 def arthropode_deplacement():
     for arthropode in arthropode_liste[:]:
-        arthropode[1] += random.randint(-1, 1)
-        arthropode[0] += random.randint(-1, 1)
+        distance = ((bonhomme_x - arthropode[0])*2 + (bonhomme_y - arthropode[1])*2)*0.5
+        if distance < 50:
+            if bonhomme_x > arthropode[0]:
+                arthropode[0] += 1
+            if bonhomme_x < arthropode[0]:
+                arthropode[0] -= 1
+            if bonhomme_y > arthropode[1]:
+                arthropode[1] += 1
+            if bonhomme_y < arthropode[1]:
+                arthropode[1] -= 1
+        else:
+            arthropode[0] += random.randint(-1, 1)
+            arthropode[1] += random.randint(-1, 1)
+
         if arthropode[1] < 8 or arthropode[1] > 248 or arthropode[0] < 8 or arthropode[0] > 248:
             arthropode_liste.remove(arthropode)
 
@@ -166,7 +178,7 @@ def draw():
         # Animation du tir
         if tir_animation > 0 and tir_animation <= 5:
             if direction == 0:
-                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 56  , 16, 16)  # Tir à droite
+                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 56, 16, 16)  # Tir à droite
                 if tir_animation==1:
                     pyxel.blt(bonhomme_x + 16, bonhomme_y + 3, 0, 32, 16, 8, 8)
                 if tir_animation==2:
