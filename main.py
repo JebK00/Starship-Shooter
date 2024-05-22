@@ -3,6 +3,8 @@ import random
 bonhomme_x = 51
 bonhomme_y = 128
 ennemis_liste = []
+points_de_vie = 10
+points_de_victoire = 0
 pyxel.init(256, 256)
 pyxel.cls(5)
 pyxel.load("3.pyxres")
@@ -20,6 +22,6 @@ def update():
 
 
 def draw():
-
+ if 
 
 pyxel.run(update, draw)
