@@ -19,7 +19,11 @@ def bonhomme_deplacement(x, y)
     return x, y
 
 def update():
-
+    global bonhomme_x, bonhomme_y, ennemis_liste, points_de_vie
+    bonhomme_x, bonhomme_y = bonhomme_deplacement(bonhomme_x, bonhomme_y)
+    ennemis_liste = ennemis_creation(ennemis_liste)
+    ennemis_liste = ennemis_deplacement(ennemis_liste)
+    ennemis_suppression()
 
 def draw():
  if 
