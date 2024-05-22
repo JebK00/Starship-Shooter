@@ -210,7 +210,7 @@ def draw():
         pyxel.text(224, 240, str(points_de_vie), 0)
     else:
         pyxel.cls(5)
-        pyxel.text(64, 110, 'Les Aliens ont pris la planète !', 7)
+        pyxel.text(64, 110, 'Les Aliens ont pris la planete !', 7)
         pyxel.text(64, 120, 'La Democratie a perdu', 7)
         pyxel.text(64, 130, 'Appuyez sur R pour recommencer', 7)
 
