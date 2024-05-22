@@ -3,7 +3,7 @@ import random
 
 bonhomme_x = 128
 bonhomme_y = 128
-status = right
+status = 0
 position_caillou_1_x = random.randint(0, 256)
 position_caillou_1_y = random.randint(0, 256)
 position_caillou_2_x = random.randint(0, 256)
@@ -20,8 +20,14 @@ position_caillou_7_x = random.randint(0, 256)
 position_caillou_7_y = random.randint(0, 256)
 position_caillou_8_x = random.randint(0, 256)
 position_caillou_8_y = random.randint(0, 256)
+position_barril_1_x = random.randint(0, 256)
+position_barril_1_y = random.randint(0, 256)
+position_barril_2_x = random.randint(0, 256)
+position_barril_2_y = random.randint(0, 256)
 arthropode_liste = []
-projectile_liste = []
+projectile_liste_right = []
+projectile_liste_left = []
+ft_liste = []
 points_de_vie = 10
 points_de_victoire = 0
 pyxel.init(256, 256)
@@ -36,18 +42,42 @@ def collision_cercle_bonhomme(cx1, cy1, r1, cx2, cy2, r2):
 def collision_cercle_projectile(cx1, cy1, r1, cx2, cy2, r2):
     return ((cx1 - cx2)**2) + ((cy1 - cy2)**2) <= (r1 + r2)**2
 
+def collision_cercle_projectileft(cx1, cy1, r1, cx2, cy2, r2):
+    return ((cx1 - cx2)**2) + ((cy1 - cy2)**2) <= (r1 + r2)**2
 
-def projectile_creation(x, y, projectile_liste):
+def projectile_creation(x, y, projectile_liste_right, projectile_liste_left):
     if pyxel.btnr(pyxel.KEY_SPACE):
-        projectile_liste.append([x + 14, y+3])
-    return projectile_liste
+        if status==0:
+            projectile_liste_right.append([x + 14, y+3])
+        if status==1:
+            projectile_liste_left.append([x + 14, y+3])
+    return projectile_liste_right, projectile_liste_left
 
-def projectile_deplacement(projectile_liste):
-    for projectile in projectile_liste:
-        projectile[0] += 5
-        if projectile[0] < -8:
-            projectile_liste.remove(projectile)
-    return projectile_liste
+def projectile_deplacement(projectile_liste_right, projectile_liste_left):
+    for projectile in projectile_liste_right:
+        if status==0:
+            projectile[0] += 5
+            if projectile[0] < -8:
+                projectile_liste_right.remove(projectile)
+    for projectile in projectile_liste_left:
+        if status==1:
+            projectile[0] -= 5
+            if projectile[0] < -8:
+                projectile_liste_right.remove(projectile)
+        
+    return projectile_liste_right, projectile_liste_left
+
+def ft_creation(x, y, ft_liste):
+    if pyxel.btnr(pyxel.KEY_F):
+        ft_liste.append([x + 14, y+3])
+    return ft_liste
+
+def ft_deplacement(ft_liste):
+    for ft in ft_liste:
+        ft[0] += 1
+        if ft[0] < -8:
+            ft.remove(ft)
+    return ft_liste
 
 
 def bonhomme_deplacement(x, y):
@@ -74,20 +104,36 @@ def arthropode_creation(arthropode_liste):
 
 
 def arthropode_suppression():
-    global bonhomme_x, bonhomme_y, arthropode_liste, points_de_victoire, projectile
+    global bonhomme_x, bonhomme_y, arthropode_liste, points_de_victoire, projectile, status, points_de_vie
 
     arthropode_enleves = []
 
     for arthropode in arthropode_liste:
 
         arthropode_x, arthropode_y = arthropode
-        for tir in projectile_liste:
+        for tir in projectile_liste_right or projectile_liste_left:
             if collision_cercle_projectile(arthropode_x, arthropode_y, 7.5, tir[0], tir[1], 7.5):
                 arthropode_enleves.append(arthropode)
                 arthropode_liste.remove(arthropode)
                 points_de_victoire += 1
-                pyxel.text(40,40,str(points_de_victoire),6)
+            if collision_cercle_bonhomme(arthropode_x, arthropode_y, 7.5, tir[0], tir[1], 7.5):
+                arthropode_enleves.append(arthropode)
+                arthropode_liste.remove(arthropode)
+                points_de_vie -= 1
 
+
+def arthropode_suppressionft():
+    global bonhomme_x, bonhomme_y, arthropode_liste, points_de_victoire, ft
+
+    arthropode_enleves = []
+
+    for arthropode in arthropode_liste:
+
+        arthropode_x, arthropode_y = arthropode
+        for tirft in ft_liste:
+            if collision_cercle_projectileft(arthropode_x, arthropode_y, 7.5, tirft[0], tirft[1], 7.5):
+                arthropode_enleves.append(arthropode)
+                
 def arthropode_deplacement(arthropode_liste):
     global points_de_structure
     for arthropode in arthropode_liste:
@@ -100,7 +146,7 @@ def arthropode_deplacement(arthropode_liste):
     return arthropode_liste
 
 def update():
-    global bonhomme_x, bonhomme_y, arthropode_liste, points_de_vie, projectile_liste, points_de_victoire, status
+    global bonhomme_x, bonhomme_y, arthropode_liste, points_de_vie, projectile_liste_right, poin, status, ft_liste
 
     bonhomme_x, bonhomme_y = bonhomme_deplacement(bonhomme_x, bonhomme_y)
 
@@ -108,20 +154,24 @@ def update():
 
     arthropode_liste = arthropode_deplacement(arthropode_liste)
 
-    projectile_liste = projectile_creation(bonhomme_x, bonhomme_y, projectile_liste)
+    projectile_liste_right = projectile_creation(bonhomme_x, bonhomme_y, projectile_liste_right)
 
-    projectile_liste = projectile_deplacement(projectile_liste)
+    projectile_liste_right = projectile_deplacement(projectile_liste_right)
+
+    ft_liste = ft_creation(bonhomme_x, bonhomme_y, ft_liste)
+
+    ft_liste = ft_deplacement(ft_liste)
 
     arthropode_suppression()
     
-    pyxel.text(224,240,str(points_de_vie),0)
+    
 
 def draw():
     global status
     if points_de_victoire == 100:
         pyxel.cls(0)
         pyxel.text(0, 54, 'Vous avez vaincu les Aliens !', 7)
-        pyxel.text(0, 64, 'La Démocratie a gagné', 7)
+        pyxel.text(0, 64, 'La Democratie a gagne', 7)
         pyxel.text(0, 74, 'Team Campi', 7)
     else:
         if points_de_vie > 0:
@@ -143,31 +193,37 @@ def draw():
                       16, 16)
             pyxel.blt(position_caillou_8_x, position_caillou_8_y, 0, 224, 128,
                       32, 16)
+            pyxel.blt(position_barril_1_x, position_barril_1_y, 0, 176, 112, 16, 16,)
+            pyxel.blt(position_barril_2_x, position_barril_2_y, 0, 192, 112, 16, 16,)
             for arthropode in arthropode_liste:
                 pyxel.blt(arthropode[0], arthropode[1], 0, 0, 120, -15, 15)
-            if status==right:
+            if status==0:
                 pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 8, 16, 16)
-            if status==left:
-                    pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 8, 16, -16)
+            if status==1:
+                    pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 8, -16, 16)
             if pyxel.btnr(pyxel.KEY_RIGHT):
                 pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 8, 16, 16)
                 if pyxel.btnr(pyxel.KEY_SPACE):
                     pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 56, 16, 16)
-                status=right
+                status=0
             if pyxel.btnr(pyxel.KEY_LEFT):
-                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 8, 16, -16)
+                pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 8, -16, 16)
                 if pyxel.btnr(pyxel.KEY_SPACE):
-                    pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 56, 16, -16)
-                status=left
+                    pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 56, -16, 16)
+                status=1
             
-            for tir in projectile_liste:
+            for tir in projectile_liste_right or projectile_liste_left:
                 pyxel.blt(tir[0], tir[1], 0, 32, 8, 8, 8 )
                 pyxel.blt(tir[0], tir[1], 0, 40, 8, 8, 8 )
                 pyxel.blt(tir[0], tir[1], 0, 48, 8, 8, 8 )
+
+            for tirft in ft_liste:
+                pyxel.blt(tirft[0], tirft[1], 0, 128, 32, 16, 16 )
+               
         else:
             pyxel.cls(0)
             pyxel.text(0, 54, 'Les Aliens on pris la planète !', 7)
-            pyxel.text(0, 64, 'La Démocratie a perdu', 7)
-
-
+            pyxel.text(0, 64, 'La Democratie a perdu', 7)
+    pyxel.text(10,10,str(points_de_victoire),6)
+    pyxel.text(224,240,str(points_de_vie),0)
 pyxel.run(update, draw)
