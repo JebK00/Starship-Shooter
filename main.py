@@ -2,8 +2,8 @@ import pyxel
 import random
 
 pyxel.init(256, 256)
-pyxel.cls()
-pyxel.load("res.pyxres")
+pyxel.cls(5)
+pyxel.load("3.pyxres")
 
 def update():
 
