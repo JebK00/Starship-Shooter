@@ -20,6 +20,5 @@ Powered by Andersen Collision System Engine
 
 Built in Python with Pyxel
 
-https://replit.com/join/cubdsyieap-doucetnils
-
-https://kitao.github.io/pyxel/wasm/launcher/?run=JebK00.jeu-nuit-du-code.main&gamepad=enabled
+Lien pour jouer au jeu:
+https://sites.google.com/view/starship-shooter/starship-shooter
