@@ -14,6 +14,8 @@ ft_liste = []
 
 # Animation du tir
 tir_animation = 0
+ft_animation = 0
+explosions = []
 
 # Charger les ressources
 pyxel.init(256, 256)
@@ -27,7 +29,8 @@ def generate_positions():
     while len(positions) < 10:
         x, y = random.randint(0, 240), random.randint(0, 240)
         if all((abs(x - px) > 16 and abs(y - py) > 16) for px, py in positions):
-            positions.append((x, y))
+            if abs(x - 128) > 15 or abs(y - 128) > 15:  # Empêcher les cailloux/barils de spawn dans un carré de 15x15 autour de x=128, y=128
+                positions.append((x, y))
     return positions
 
 caillou_positions = generate_positions()[:8]
@@ -64,14 +67,30 @@ def projectile_deplacement():
         if projectile[0] < -8 or projectile[0] > 264:
             projectile_liste.remove(projectile)
 
-def ft_creation(x, y):
+def ft_creation(x, y, direction):
+    global ft_animation
     if pyxel.btnp(pyxel.KEY_F) and len(ft_liste) < 1:
-        ft_liste.append([x + 14, y + 3])
+        if direction == 0:
+            ft_liste.append([x + 14, y + 3, direction, 0])
+        else:
+            ft_liste.append([x - 4, y + 3, direction, 0])
+        ft_animation = 1
 
 def ft_deplacement():
-    for ft in ft_liste:
-        ft[0] += 1
-        if ft[0] < -8:
+    for ft in ft_liste[:]:
+        if ft[2] == 0:
+            ft[0] += 2
+        else:
+            ft[0] -= 2
+        ft[3] += 1
+
+        for (cx, cy) in caillou_positions + barril_positions:
+            if collision_rectangle(ft[0], ft[1], 16, 16, cx, cy, 16, 16):
+                explosions.append([ft[0], ft[1], 0])
+                ft_liste.remove(ft)
+                break
+
+        if ft[0] < -16 or ft[0] > 272:
             ft_liste.remove(ft)
 
 def bonhomme_deplacement(x, y):
@@ -120,13 +139,12 @@ def arthropode_suppression():
         if collision_cercle(arthropode_x, arthropode_y, 7.5, bonhomme_x, bonhomme_y, 7.5):
             arthropode_liste.remove(arthropode)
             points_de_vie -= 1
-
-def arthropode_suppressionft():
-    for arthropode in arthropode_liste[:]:
-        arthropode_x, arthropode_y = arthropode[:2]
         for ft in ft_liste[:]:
             if collision_cercle(arthropode_x, arthropode_y, 7.5, ft[0], ft[1], 7.5):
                 arthropode_liste.remove(arthropode)
+                explosions.append([arthropode_x, arthropode_y, 0])
+                ft_liste.remove(ft)
+                break
 
 def arthropode_deplacement():
     for arthropode in arthropode_liste:
@@ -153,33 +171,39 @@ def arthropode_deplacement():
                 arthropode[3] *= -1
 
 def update():
-    global bonhomme_x, bonhomme_y, start_screen, tir_animation
+    global bonhomme_x, bonhomme_y, tir_animation, ft_animation, points_de_vie, points_de_victoire, start_screen
+
     if start_screen:
         if pyxel.btnp(pyxel.KEY_RETURN):
             start_screen = False
         return
 
     bonhomme_x, bonhomme_y = bonhomme_deplacement(bonhomme_x, bonhomme_y)
-
-    arthropode_creation()
-    arthropode_deplacement()
-
     projectile_creation(bonhomme_x, bonhomme_y, direction)
     projectile_deplacement()
-
-    ft_creation(bonhomme_x, bonhomme_y)
+    ft_creation(bonhomme_x, bonhomme_y, direction)
     ft_deplacement()
-
+    arthropode_creation()
+    arthropode_deplacement()
     arthropode_suppression()
-    arthropode_suppressionft()
 
     if tir_animation > 0:
         tir_animation += 1
-        if tir_animation > 15:
+        if tir_animation > 5:
             tir_animation = 0
 
+    if ft_animation > 0:
+        ft_animation += 1
+        if ft_animation > 5:
+            ft_animation = 0
+
+    for explosion in explosions[:]:
+        explosion[2] += 1
+        if explosion[2] > 5:
+            explosions.remove(explosion)
+
 def draw():
-    global start_screen, tir_animation
+
     if start_screen:
         pyxel.cls(5)
         pyxel.text(90, 60, "Starship Shooter", pyxel.frame_count % 16)
@@ -243,27 +267,86 @@ def draw():
                 pyxel.blt(projectile[0], projectile[1], 0, 40, 8, 8, 8)
             else:
                 pyxel.blt(projectile[0], projectile[1], 0, 48, 8, 8, 8)
-        
+
         for ft in ft_liste:
-            pyxel.blt(ft[0], ft[1], 0, 128, 32, 16, 16)
-        
+            if ft_animation > 0 and ft_animation <= 5:
+                if direction == 0:
+                    pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 56  , 16, 16)  # Tir à droite
+                    if ft_animation==1:
+                        pyxel.blt(bonhomme_x + 16, bonhomme_y + 3, 0, 32, 16, 8, 8)
+                    if ft_animation==2:
+                        pyxel.blt(bonhomme_x + 16, bonhomme_y + 3, 0, 40, 16, 8, 8)
+                    if ft_animation==3:
+                        pyxel.blt(bonhomme_x + 16, bonhomme_y + 3, 0, 48, 16, 8, 8)
+                    if ft_animation==4:
+                        pyxel.blt(bonhomme_x + 16, bonhomme_y + 3, 0, 56, 16, 8, 8)
+                    if ft_animation==5:
+                        pyxel.blt(bonhomme_x + 16, bonhomme_y + 3, 0, 64, 16, 8, 8)
+                else:
+                    pyxel.blt(bonhomme_x, bonhomme_y, 0, 0, 56, -16, 16)  # Tir à gauche
+                    if ft_animation==1:
+                        pyxel.blt(bonhomme_x - 8, bonhomme_y + 3, 0, 32, 16, -8, 8)
+                    if ft_animation==2:
+                        pyxel.blt(bonhomme_x - 8, bonhomme_y + 3, 0, 40, 16, -8, 8)
+                    if ft_animation==3:
+                        pyxel.blt(bonhomme_x - 8, bonhomme_y + 3, 0, 48, 16, -8, 8)
+                    if ft_animation==4:
+                        pyxel.blt(bonhomme_x - 8, bonhomme_y + 3, 0, 56, 16, -8, 8)
+                    if ft_animation==5:
+                        pyxel.blt(bonhomme_x - 8, bonhomme_y + 3, 0, 64, 16, -8, 8)
+            else:
+                if ft[2] == 0:
+                    pyxel.blt(ft[0], ft[1], 0, 128, 32, 16, 16)  # ft à droite
+                else:
+                    pyxel.blt(ft[0], ft[1], 0, 128, 48, 16, 16)  # ft à gauche
+            if direction==0:
+                if ft[3] < 3:
+                    pyxel.blt(ft[0]-8, ft[1]-4, 0, 40, 56, 8, 16)
+                elif ft[3] < 6:
+                    pyxel.blt(ft[0], ft[1]-4, 0, 48, 56, 16, 16)
+                else:
+                    pyxel.blt(ft[0], ft[1]-4, 0, 64, 56, 16, 16)
+            if direction==1:
+                if ft[3] < 3:
+                    pyxel.blt(ft[0], ft[1]-4, 0, 40, 56, -8, 16)
+                elif ft[3] < 6:
+                    pyxel.blt(ft[0], ft[1]-4, 0, 48, 56, -16, 16)
+                else:
+                    pyxel.blt(ft[0], ft[1]-4, 0, 64, 56, -16, 16)
+
+
+        for explosion in explosions:
+            pyxel.blt(explosion[0], explosion[1], 0, 128, 32, 16, 16)
+            pyxel.blt(explosion[0], explosion[1], 0, 144, 32, 16, 16)
+            pyxel.blt(explosion[0], explosion[1], 0, 160, 32, 16, 16)
+            pyxel.blt(explosion[0], explosion[1], 0, 176, 32, 16, 16)
+            pyxel.blt(explosion[0], explosion[1], 0, 192, 32, 16, 16)
+            pyxel.blt(explosion[0], explosion[1], 0, 208, 32, 16, 16)
+            pyxel.blt(explosion[0], explosion[1], 0, 224, 32, 16, 16)
+            pyxel.blt(explosion[0], explosion[1], 0, 240, 32, 16, 16)
+            pyxel.blt(explosion[0], explosion[1], 0, 128, 32, 16, 16)
+
         if points_de_victoire>=0 and points_de_victoire<8:
-            pyxel.blt(240, 240, 0, 48, 216, 16, 16)
+            pyxel.blt(16, 10, 0, 32, 184, 16, 16)
+            pyxel.text(10, 10, str(points_de_victoire), 6)
         if points_de_victoire>=8 and points_de_victoire<16:
-            pyxel.blt(240, 240, 0, 48, 216, 16, 16)
+            pyxel.blt(16, 10, 0, 32, 200, 16, 16)
+            pyxel.text(10, 10, str(points_de_victoire), 6)
         if points_de_victoire>=16 and points_de_victoire<25:
-            pyxel.blt(240, 240, 0, 48, 216, 16, 16)        
-        pyxel.text(10, 10, str(points_de_victoire), 6)
+            pyxel.blt(16, 10, 0, 32, 216, 16, 16)        
+            pyxel.text(10, 10, str(points_de_victoire), 6)
         if points_de_vie>6:
             pyxel.blt(240, 240, 0, 48, 216, 16, 16)
+            pyxel.text(224, 240, str(points_de_vie), 0)
         if points_de_vie>3 and points_de_vie<=6:
             pyxel.blt(240, 240, 0, 48, 200, 16, 16)
+            pyxel.text(224, 240, str(points_de_vie), 0)
         if points_de_vie>0 and points_de_vie<=3:
             pyxel.blt(240, 240, 0, 48, 184, 16, 16)
-        pyxel.text(224, 240, str(points_de_vie), 0)
+            pyxel.text(224, 240, str(points_de_vie), 0)
     else:
         pyxel.cls(5)
-        pyxel.text(64, 110, 'Les Aliens ont pris la planete !', 7)
+        pyxel.text(64, 110, 'Les Aliens ont pris la planète !', 7)
         pyxel.text(64, 120, 'La Democratie a perdu', 7)
         pyxel.text(64, 130, 'Appuyez sur R pour recommencer', 7)
 
