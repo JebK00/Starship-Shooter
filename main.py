@@ -44,7 +44,7 @@ def collision_rectangle(x1, y1, w1, h1, x2, y2, w2, h2):
 
 def projectile_creation(x, y, direction):
     global tir_animation
-    if pyxel.btnp(pyxel.KEY_SPACE) and len(projectile_liste) < 10:
+    if pyxel.btnp(pyxel.KEY_SPACE or pyxel.GAMEPAD1_BUTTON_X) and len(projectile_liste) < 10:
         if direction == 0:
             projectile_liste.append([x + 14, y + 3, direction, 0])
         else:
@@ -69,7 +69,7 @@ def projectile_deplacement():
 
 def ft_creation(x, y, direction):
     global ft_animation
-    if pyxel.btnp(pyxel.KEY_F) and len(ft_liste) < 1:
+    if pyxel.btnp(pyxel.KEY_F or pyxel.GAMEPAD1_BUTTON_Y) and len(ft_liste) < 1:
         if direction == 0:
             ft_liste.append([x + 14, y + 3, direction, 0])
         else:
@@ -96,14 +96,14 @@ def ft_deplacement():
 def bonhomme_deplacement(x, y):
     global direction
     old_x, old_y = x, y
-    if pyxel.btn(pyxel.KEY_DOWN) and y < 240:
+    if pyxel.btn(pyxel.KEY_DOWN or pyxel.GAMEPAD1_BUTTON_DPAD_DOWN) and y < 240:
         y += 1.5
-    if pyxel.btn(pyxel.KEY_UP) and y > 0:
+    if pyxel.btn(pyxel.KEY_UP or pyxel.GAMEPAD1_BUTTON_DPAD_UP) and y > 0:
         y -= 1.5
-    if pyxel.btn(pyxel.KEY_LEFT) and x > 0:
+    if pyxel.btn(pyxel.KEY_LEFT or pyxel.GAMEPAD1_BUTTON_DPAD_LEFT) and x > 0:
         x -= 1.5
         direction = 1
-    if pyxel.btn(pyxel.KEY_RIGHT) and x < 240:
+    if pyxel.btn(pyxel.KEY_RIGHT or pyxel.GAMEPAD1_BUTTON_DPAD_RIGHT) and x < 240:
         x += 1.5
         direction = 0
 
@@ -174,7 +174,7 @@ def update():
     global bonhomme_x, bonhomme_y, tir_animation, ft_animation, points_de_vie, points_de_victoire, start_screen
 
     if start_screen:
-        if pyxel.btnp(pyxel.KEY_RETURN):
+        if pyxel.btnp(pyxel.KEY_RETURN or pyxel.GAMEPAD1_BUTTON_A):
             start_screen = False
         return
 
@@ -210,7 +210,7 @@ def draw():
         pyxel.text(20, 100, "Créateurs: Renan Laugier - Nils Doucet - Arthur Jensen", 7)
         pyxel.text(75, 120, "A Ryangames Production", 7)
         pyxel.text(80, 140, "Fleche pour deplacer", 7)
-        pyxel.text(35, 160, "Espace pour Mitraillette; F pour Lance-Flamme", 7)
+        pyxel.text(35, 160, "Espace pour Mitraillette; F pour Lance-Roquette", 7)
         pyxel.text(60, 200, "Appuyez sur ENTER pour commencer", 7)
         return
 
