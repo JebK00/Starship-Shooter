@@ -10,9 +10,21 @@ Aucun échec ne sera accepté.
 
 Starship Command
 
+### Roadmap
+
+v1.0 - Version stable et jouable (fait)
+
+entre: amelioration des graphismes et correction de bugs 
+
+v2.0 - Compatibilité tactile
+
+entre: correction de bugs
+
 ### Crédits
 
 Créateurs: Renan Laugier - Nils Doucet - Arthur Jensen
+
+Production: M. Fabien Campi
 
 A Ryangames Production
 
