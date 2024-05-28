@@ -14,6 +14,8 @@ Starship Command
 
 v1.0 - Version stable et jouable (fait)
 
+v1.1 Alpha - Support théorique du mobile a tester (fait)
+
 entre: amelioration des graphismes et correction de bugs 
 
 v2.0 - Compatibilité tactile
